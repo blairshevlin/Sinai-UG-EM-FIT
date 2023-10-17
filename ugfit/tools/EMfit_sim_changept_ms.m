@@ -1,4 +1,4 @@
-function [modout]= EMfit_ms(rootfile,modelID,quickfit,trials)
+function [modout]= EMfit_sim_changept_ms(rootfile,modelID,quickfit,trials)
 % 2017; does Expectation-maximation fitting. Originally written by Elsa Fouragnan, modified by MKW.
 % Adapted by BRK Shevlin April 2023
 % INPUT:       - rootfile: file with all behavioural information necessary for fitting + outputroot
@@ -19,7 +19,7 @@ modout      = rootfile.em;
 n_subj      = length(rootfile.ID);
 fit.ntrials = length(trials);%nan(length(rootfile.beh{1}.offer),1);
 for is = 1:n_subj
-   fit.ntrials(is) = sum(~isnan(rootfile.beh{is}.offer)); 
+   fit.ntrials(is) = sum(~isnan(rootfile.beh.offer{is})); 
 end
 
 
@@ -67,8 +67,8 @@ for iiter = 1:fit.maxit
       while ex<0                                                              % just to make sure the fitting is done
          q        =.1*randn(fit.npar,1);                                      % free parameters set to random
          beh_is = struct();
-         beh_is.offer = rootfile.beh{is}.offer(trials);
-         beh_is.choice = rootfile.beh{is}.choice(trials);
+         beh_is.offer = rootfile.beh.offer{is};
+         beh_is.choice = rootfile.beh.choice{is};
          inputfun = @(q)fit.objfunc(beh_is,q,fit.doprior ,fit.dofit,prior);  
          [q,fval,ex,~,~,hessian] = fminunc(inputfun,q,fit.options); 
          if ex<0 ; tmp=tmp+1; fprintf('didn''t converge %i times exit status %i\r',tmp,ex); end         
@@ -200,8 +200,8 @@ modout.(modelID).fit.goodHessian = goodHessian;
 for is = 1:n_subj
    % For UG structure
    beh_is = struct();
-   beh_is.offer = rootfile.beh{is}.offer(trials);
-   beh_is.choice = rootfile.beh{is}.choice(trials);
+   beh_is.offer = rootfile.beh.offer{is};
+   beh_is.choice = rootfile.beh.choice{is};
    [nll_check,subfit]            = fit.objfunc(beh_is,m(:,is),fit.doprior,fit.dofit); 
    % group values
    modout.(modelID).qnames       = subfit.xnames;

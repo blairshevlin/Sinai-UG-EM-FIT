@@ -44,9 +44,9 @@ free = {alpha beta epsilon delta};
 %    [fval,~,~,ChoiceProb] = lik_UG2_etaf_f0f_adaptiveNorm_v2(behavData.offer, behavData.choice,fixed,free,changept,doprior);
 %end
 if doprior == 1
-    [fval,~,~,ChoiceProb] = lik_UG2_etaf_f0f_adaptiveNorm_v2(behavData.offer, behavData.choice,fixed,free,doprior,prior,q);
+    [fval,~,~,ChoiceProb] = lik_UG2_etaf_f0f_adaptiveNorm(behavData.offer, behavData.choice,fixed,free,doprior,prior,q);
 else
-    [fval,~,~,ChoiceProb] = lik_UG2_etaf_f0f_adaptiveNorm_v2(behavData.offer, behavData.choice,fixed,free,doprior);
+    [fval,~,~,ChoiceProb] = lik_UG2_etaf_f0f_adaptiveNorm(behavData.offer, behavData.choice,fixed,free,doprior);
 
 end
 % -------------------------------------------------------------------------------------
@@ -54,7 +54,6 @@ end
 % -------------------------------------------------------------------------------------
 
 if dofit ==1
-
    fit         = struct;
    fit.q = qt;
    fit.xnames  = {'alpha'; 'beta';'epsilon';'delta'};

@@ -2,10 +2,7 @@
 % Created by BRK Shevlin, May 2023
 clear;
 indir = '~example_data';
-infile_bed = 'SOCIAL_matched_hc_bed.csv';
-T_bed = readtable(fullfile(indir, infile_bed));
-infile_bn = 'SOCIAL_matched_hc_bn.csv';
-T_bn = readtable(fullfile(indir, infile_bn));
+
 load(fullfile(indir,"beh001.mat"));
 
 %%

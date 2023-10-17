@@ -1,4 +1,4 @@
-function [mu,sigma,flagsigma,covmat ] = compGauss_ms(m,h,vargin)
+function [mu,sigma,flagsigma,covmat ] = compGauss_map(m,h,vargin)
 % compute group-level gaussian from fminunc computed parameters and their covariances
 % MKW, 2017
 %
@@ -13,7 +13,6 @@ function [mu,sigma,flagsigma,covmat ] = compGauss_ms(m,h,vargin)
 
 
 % get info
-nsub = size(m,2);
 npar = size(h,1);
 covmat = [];
 
@@ -23,28 +22,19 @@ mu =  mean(m,2);
 
 % ------2) Compute sigma: -------------------------------------------------
 
-sigma   = zeros(size(h,1),1);
-
-for is = 1:nsub
-   sigma = sigma + m(:,is).^2 + diag(pinv(h(:,:,is)));
-end
-sigma = sigma./nsub  - mu.^2;
+sigma   = diag(pinv(h));
 
 % give error message in case:
 if min(sigma) < 0, flagsigma = 0; disp('CovError!'); else flagsigma=1;  end % negative values for the variance cannot be
-
 
 
 % ----- 3) Optional: Get full covariance matrix----------------------------
 
 
 if nargin < 3, return; end % go on only if vargin is defined
-covmat   = zeros(npar,npar);
+    covmat   = zeros(npar,npar);
 if vargin == 2 
-   for is=1:nsub
-      covmat = covmat + m(:,is)*m(:,is)' - m(:,is)*mu' - mu*m(:,is)' + mu*mu' + pinv(h(:,:,is));
-   end
-   covmat = covmat./nsub;
+   covmat = covmat + m*m' - m*mu' - mu*m' + mu*mu' + pinv(h);
 end
 if det(covmat)<=0
    fprintf('negative/zero determinant - prior covariance not updated');

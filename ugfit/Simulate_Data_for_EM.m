@@ -15,14 +15,26 @@ eta = 0.8;          % fixed parameter
 nP = 1500;
 IDs = 1:nP;
 
-gen_params = rand(nP,5);
-gen_params(:,2) = 15*gen_params(:,2);
-gen_params(:,3) = 10;%20*gen_params(:,3);  
-gen_params(:,5) = 2*gen_params(:,5);  
+gen_params = zeros(nP,5);
+
+% alpha
+gen_params(:,1) = round(normrnd(0.76,0.29,[1,nP]),2);
+
+%gen_params = rand(nP,5);
+% alpha
+gen_params(:,1) = round(gen_params(:,1),2);
+% beta
+gen_params(:,2) = round(15*gen_params(:,2),2);
+% f0
+gen_params(:,3) = round(20*gen_params(:,3),2);  
+% epsilon
+gen_params(:,4) = round(gen_params(:,4),2);
+% delta
+gen_params(:,5) = round(4*gen_params(:,5) - 2,2);  
 
 % Set floor for beta
 for i = 1:nP
-    if gen_params(i,2) < 1; gen_params(i,2) = 1; end
+    if gen_params(i,2) < 1.5; gen_params(i,2) = 1.5; end
 end
 
 %%
@@ -128,6 +140,6 @@ s.simUG1 = simUG1;
 s.simUG2 = simUG2;
 s.simUG3 = simUG3;
 
-save('DATA_Simulated_1500Subj_30Trials.mat', 's');
+save('DATA_Simulated_50Subj_30Trials_Sept23.mat', 's');
 
 

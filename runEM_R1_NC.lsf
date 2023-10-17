@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#BSUB -J EM_NC
+#BSUB -P acc_guLab
+#BSUB -q private
+#BSUB -R rusage[mem=1500]
+#BSUB -W 120:00
+#BSUB -o %J.stdout
+#BSUB -eo %J.stderr
+#BSUB -L /bin/bash
+#BSUB -n 1
+
+ml matlab
+
+cd /sc/arion/projects/guLab/Blair/UG-Model/EM/ugfit
+
+matlab -nosplash -nodisplay -nodesktop -r "clear; run('/sc/arion/projects/guLab/Blair/UG-Model/EM/ugfit/ana_mod_fit_NC'); exit" 
+

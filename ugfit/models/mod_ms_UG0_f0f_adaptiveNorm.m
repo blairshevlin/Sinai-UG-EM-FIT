@@ -36,9 +36,9 @@ free = {alpha beta epsilon};
 % 2-4) Middle code is specific the the model
 % -------------------------------------------------------------------------------------
 if doprior == 1
-    [fval,norm,V,ChoiceProb] = lik_UG0_f0f_adaptiveNorm_v2(behavData.offer, behavData.choice,fixed,free,doprior,prior,q);
+    [fval,norm,V,ChoiceProb] = lik_UG0_f0f_adaptiveNorm(behavData.offer, behavData.choice,fixed,free,doprior,prior,q);
 else
-    [fval,norm,V,ChoiceProb] = lik_UG0_f0f_adaptiveNorm_v2(behavData.offer, behavData.choice,fixed,free,doprior);
+    [fval,norm,V,ChoiceProb] = lik_UG0_f0f_adaptiveNorm(behavData.offer, behavData.choice,fixed,free,doprior);
 
 end
 % -------------------------------------------------------------------------------------

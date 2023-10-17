@@ -17,7 +17,7 @@ setFigDefaults;
 %indir = 'C:/Users/blair/Documents/Research/Sinai-UG-EM-FIT/example_data/';
 load('DATA_COVID_Round1_IC_noFlat_passAttn_Oct4.mat');
 % define data set(s) of interest:
-expids = {'r1NC','r1IC'};
+expids = {'r1NC'};
 % how to fit RL:
 M.dofit     = 1;                                                                                                     % whether to fit or not                                                           
 M.doMC      = 1;                                                                                                     % whether to do model comparison or not  
@@ -46,73 +46,25 @@ for iexp = 1:numel(expids)
             % If things are not working, run this line manually to set an
             % idea where the error in the code is
             s.(cur_exp).em = EMfit_ms(s.(cur_exp),M.modid{im},M.quickfit,trials);
+            %s.(cur_exp).em = EMfit_fmri_ms(s.(cur_exp),M.modid{im},M.quickfit,trials);
 
             dotry=0;
          catch
             dotry=1; disp('caught');
          end
       end
+      save('FIT_COVID_R1_NC_t30_Oct17_2023.mat','s')
    end
 
    %%% calc BICint for EM fit
-   for im = 1:numel(M.modid)
-      s.(cur_exp).em.(M.modid{im}).fit.bicint =  cal_BICint_ms(s.(cur_exp).em, M.modid{im},trials);     
-   end   
+  % for im = 1:numel(M.modid)
+  %    s.(cur_exp).em.(M.modid{im}).fit.bicint =  cal_BICint_ms(s.(cur_exp).em, M.modid{im},trials);     
+  % end   
 
 end
 
 
-save('WEIGHTED_FIT_COVID_R1_t30_Oct4_2023.mat','s')
-
-%%
-%== II) COMPARE MODELS: ================================================================================================
-
-M.modid = {'ms_UG0_f0f_adaptiveNorm', ...
-                 'ms_UG1_etaf_f0f_adaptiveNorm' 
-                 'ms_UG2_etaf_f0f_adaptiveNorm',...
-                 'ms_UG3_etaf_f0f_adaptiveNorm'
-    };
-
-for iexp = 1:numel(expids)
-   if M.doMC~=1, break; end
-   cur_exp = expids{iexp};
-   EMmc_ms_Hess_fix(s.(cur_exp),M.modid);  
-end
-
-
-
-
-%% Look at params of winning model
-modelID =  'ms_UG2_etaf_f0f_adaptiveNorm';
-winning_model = s.(cur_exp).em.(modelID);
-
-params = winning_model.q;
-
-est_params = zeros(size(params,1),size(params,2));
-
-for i = 1:size(params,1)
-    est_params(i,1) = norm2alpha(params(i,1));
-    est_params(i,2) = norm2beta(params(i,2));
-    est_params(i,3) = norm2alpha(params(i,3));
-    est_params(i,4) = norm2delta(params(i,4));
-end
-
-%% ONLY RELEVANT FOR PARAMETER RECOVERY EXERCISES
-% This loads in param_tru
-load('recover_nRv_f3_cap2_t20_etaf_no0_IC.mat')
-
-
-% Temperature
-corrplot([est_params(:,2) param_tru(:,1)    ])
-% Envy
-corrplot([est_params(:,1) param_tru(:,2)    ])
-% Adaptation
-corrplot([est_params(:,3) param_tru(:,4)    ])
-% Delta
-corrplot([est_params(:,4) param_tru(:,5)    ])
-
-
-
+%save('WEIGHTED_FIT_COVID_R1_IC_t30_Oct4_2023.mat','s')
 
 
 

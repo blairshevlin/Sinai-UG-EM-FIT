@@ -8,31 +8,27 @@
 clearvars
 addpath('models'); 
 addpath('tools');
-
 setFigDefaults; 
 %%
 
 %%== 0) Load and organise data: ==========================================================================================
 % load data:
-%indir = 'C:/Users/blair/Documents/Research/Sinai-UG-EM-FIT/example_data/';
-load('DATA_COVID_Round1_IC_noFlat_passAttn_Oct4.mat');
+load('DATA_Simulated_50Subj_20Trials_Oct4.mat');
 % define data set(s) of interest:
-expids = {'r1NC','r1IC'};
+expids = {'simUG2'};
 % how to fit RL:
 M.dofit     = 1;                                                                                                     % whether to fit or not                                                           
 M.doMC      = 1;                                                                                                     % whether to do model comparison or not  
 M.quickfit  = 0;   % Shawn tells me that quickfit is too liberal to be trusted, but is fine for testing                                                                                                  % whether to lower the convergence criterion for model fitting (makes fitting quicker) (1=quick fit)
 M.omitBMS   = 0;                                                                                                     % omit bayesian model comparison if you don't have SPM instaslled
-M.modid     = { 'ms_UG0_f0f_adaptiveNorm', ...
-     'ms_UG1_etaf_f0f_adaptiveNorm',...
-      'ms_UG2_etaf_f0f_adaptiveNorm', ...
-      'ms_UG3_etaf_f0f_adaptiveNorm'}; 
+M.modid     = {
+      'ms_UG2_etaf_f0f_adaptiveNorm'}; 
               
                 % list of main models to fit
 
 %%
 %== I) RUN MODELS: ======================================================================================================
-trials = (1:30);
+trials = (1:20);
 for iexp = 1:numel(expids)
    if M.dofit == 0,  break; end
    cur_exp = expids{iexp};                                                   
@@ -45,7 +41,8 @@ for iexp = 1:numel(expids)
             close all;
             % If things are not working, run this line manually to set an
             % idea where the error in the code is
-            s.(cur_exp).em = EMfit_ms(s.(cur_exp),M.modid{im},M.quickfit,trials);
+            s.(cur_exp).em = EMfit_sim_changept_ms(s.(cur_exp),M.modid{im},M.quickfit,trials);
+            %s.(cur_exp).em = EMfit_fmri_ms(s.(cur_exp),M.modid{im},M.quickfit,trials);
 
             dotry=0;
          catch
@@ -62,7 +59,7 @@ for iexp = 1:numel(expids)
 end
 
 
-save('WEIGHTED_FIT_COVID_R1_t30_Oct4_2023.mat','s')
+save('WEIGHTED_FIT_ED_t20_Oct4_2023.mat','s')
 
 %%
 %== II) COMPARE MODELS: ================================================================================================
@@ -98,18 +95,26 @@ for i = 1:size(params,1)
 end
 
 %% ONLY RELEVANT FOR PARAMETER RECOVERY EXERCISES
-% This loads in param_tru
-load('recover_nRv_f3_cap2_t20_etaf_no0_IC.mat')
+
+param_tru = zeros(size(params,1),size(params,2));
+
+for i = 1:size(param_tru,1)
+    param_tru(i,1) = s.simUG2.params(i,1);
+    param_tru(i,2) = s.simUG2.params(i,2);
+    param_tru(i,3) = s.simUG2.params(i,4);
+    param_tru(i,4) = s.simUG2.params(i,5);
+end
 
 
+%%
 % Temperature
-corrplot([est_params(:,2) param_tru(:,1)    ])
+corrplot([est_params(:,1) param_tru(:,1)    ])
 % Envy
-corrplot([est_params(:,1) param_tru(:,2)    ])
+corrplot([est_params(:,2) param_tru(:,2)  ])
 % Adaptation
-corrplot([est_params(:,3) param_tru(:,4)    ])
+corrplot([est_params(:,3) param_tru(:,3)    ])
 % Delta
-corrplot([est_params(:,4) param_tru(:,5)    ])
+corrplot([est_params(:,4) param_tru(:,4)    ])
 
 
 
