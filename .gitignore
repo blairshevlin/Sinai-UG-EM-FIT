@@ -1,2 +1,7 @@
 # ignore this folder
 misophonia/
+
+#ignore these files
+runEM_miso.lsf
+runEM_R1_IC.lsf
+runEM_R1_NC.lsf
