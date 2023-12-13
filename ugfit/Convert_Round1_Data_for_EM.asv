@@ -1,0 +1,79 @@
+% Convert UG2 to a format for EM procedure
+% Created by BRK Shevlin, May 2023
+clear;
+infile = 'C:/Users/blair/Documents/Research/Sinai-UG-EM-FIT/example_data/beh001.mat';
+load(infile);
+
+% Load in table of participants who failed attention check
+T = readtable("C:/Users/blair/Documents/Research/Sinai-UG-PTSD/COVID/prolific/bad_ids.csv");
+
+% Number of subejcts and extract participant iDS
+possIDs_mat = cell2mat(ID);
+possIDs = {};
+tot = 0;
+for i = 1:size(ID,1)
+    idx = possIDs_mat(i,:);
+        possIDs{tot} = idx;
+end
+
+%% 
+% We only want participants who are non flat in both conditions
+
+tot=0;
+for i = 1:size(possIDs,2)
+    if sum(IC_Choice(:,i))==30 || sum(IC_Choice(:,i))==0 || sum(NC_Choice(:,i))==0 || sum(NC_Choice(:,i))==30
+        fprintf('\nSubject %s (%i) was a flat responder\n',possIDs{i},i);
+        continue
+    end
+
+    % Go through IDs and make sure non failed the attention check
+    check=ismember(T.x,possIDs{i});
+    if sum(check)==0
+        fprintf('\nSubject %s (%i) failed attention check',possIDs{i},i);
+        continue
+    end
+
+    tot = tot +1;
+    keepStruct_IC = struct();
+    keepStruct_NC = struct();
+
+    keepStruct_IC.offer = IC_offer(:,i);
+    keepStruct_IC.choice = IC_Choice(:,i);
+
+    keepStruct_NC.offer = IC_offer(:,i);
+    keepStruct_NC.choice = IC_Choice(:,i);
+    
+    IC_beh(:,tot) = {keepStruct_IC};
+    NC_beh(:,tot) = {keepStruct_NC};
+
+    IC_IDs{tot}= possIDs{i};
+    NC_IDs{tot}= possIDs{i};
+    
+end
+
+
+
+
+%%
+% IC condition
+r1IC = struct();
+r1IC.beh = IC_beh;
+r1IC.expname = 'r1IC';
+r1IC.ID = IC_IDs;
+r1IC.em = {};
+
+% NC condition
+r1NC = struct();
+r1NC.beh = NC_beh;
+r1NC.expname = 'r1NC';
+r1NC.ID = NC_IDs;
+r1NC.em = {};
+
+% Put into into the s structure
+s = struct();
+s.r1IC = r1IC;
+s.r1NC = r1NC;
+
+save('DATA_COVID_Round1_noFlat-BOTH_passAttn_Nov30.mat','s');
+
+

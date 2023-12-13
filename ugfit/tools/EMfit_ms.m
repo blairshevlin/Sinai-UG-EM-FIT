@@ -25,12 +25,13 @@ end
 
 % define model and fitting params:
 if quickfit==1, fit.convCrit= 0.1; else fit.convCrit= 1e-3; end
-fit.maxit   = 800; 
-fit.maxEvals= 400;
+fit.maxit   = 1000; 
+fit.maxEvals= 500;
 fit.npar    = get_npar(modelID);   
 fit.objfunc = str2func(['mod_' modelID]);                                     % the function used from here downwards
 fit.doprior = 1;
 fit.dofit   = 0;                                                              % getting the fitted schedule
+% Note: reduced TolX to .001 (Original is .001)
 fit.options = optimoptions(@fminunc,'Display','off','TolX',.0001,'Algorithm','quasi-newton'); 
 if isfield(fit,'maxEvals'),  fit.options = optimoptions(@fminunc,'Display','off','TolX',.0001,'MaxFunEvals', fit.maxEvals,'Algorithm','quasi-newton'); end
 
@@ -108,11 +109,20 @@ for iiter = 1:fit.maxit
    subplot(2,1,1);
    plot(sum(NPL(:,1:iiter)),'b'); hold all;
    plot(NLL(1:iiter),'r'); 
-   if iiter==1, leg = legend({'NPL','NLL'},'Autoupdate','off'); end          
+   if iiter==1, leg = legend({'NPL - Sum' ,'NLL - Sum'},'Autoupdate','off'); end          
    title([rootfile.expname ' - ' strrep(modelID,'_',' ')]);    xlabel('EM iteration');
    setfp(gcf)
    drawnow; 
-   
+
+   subplot(2,1,2);
+   MNLL(iiter) = mean(NPL(:,iiter)) - sum(NLPrior(:,iiter));  
+   plot(mean(NPL(:,1:iiter)),'g');hold all;
+   plot(MNLL(1:iiter),'y'); 
+   if iiter==1, leg = legend({'NPL - Mean', 'NLL - Mean'},'Autoupdate','off'); end          
+   title([rootfile.expname ' - ' strrep(modelID,'_',' ')]);    xlabel('EM iteration');
+   setfp(gcf)
+   drawnow; 
+
    % execute break if desired
    if nextbreak ==1 
       break 
