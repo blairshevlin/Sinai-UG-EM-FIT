@@ -1,4 +1,4 @@
-function [modout]= EMfit_ms(rootfile,modelID,quickfit,trials)
+function [modout]= EMfit_2cond_ms(rootfile,modelID,quickfit)
 % 2017; does Expectation-maximation fitting. Originally written by Elsa Fouragnan, modified by MKW.
 % Adapted by BRK Shevlin April 2023
 % INPUT:       - rootfile: file with all behavioural information necessary for fitting + outputroot
@@ -17,21 +17,20 @@ fprintf([rootfile.expname ': Fitting ' modelID ' using EM.']);
 % assign input variables
 modout      = rootfile.em;
 n_subj      = length(rootfile.ID);
-fit.ntrials = length(trials);%nan(length(rootfile.beh{1}.offer),1);
+fit.ntrials = [];%nan(length(rootfile.beh{1}.offer),1);
 for is = 1:n_subj
-   fit.ntrials(is) = sum(~isnan(rootfile.beh{is}.offer)); 
+   fit.ntrials(is) = 60;%sum(~isnan(rootfile.beh{is}.offer(trials))); 
 end
 
 
 % define model and fitting params:
 if quickfit==1, fit.convCrit= 0.1; else fit.convCrit= 1e-3; end
-fit.maxit   = 1000; 
-fit.maxEvals= 500;
+fit.maxit   = 800; 
+fit.maxEvals= 400;
 fit.npar    = get_npar(modelID);   
 fit.objfunc = str2func(['mod_' modelID]);                                     % the function used from here downwards
 fit.doprior = 1;
 fit.dofit   = 0;                                                              % getting the fitted schedule
-% Note: reduced TolX to .001 (Original is .001)
 fit.options = optimoptions(@fminunc,'Display','off','TolX',.0001,'Algorithm','quasi-newton'); 
 if isfield(fit,'maxEvals'),  fit.options = optimoptions(@fminunc,'Display','off','TolX',.0001,'MaxFunEvals', fit.maxEvals,'Algorithm','quasi-newton'); end
 
@@ -68,8 +67,8 @@ for iiter = 1:fit.maxit
       while ex<0                                                              % just to make sure the fitting is done
          q        =.1*randn(fit.npar,1);                                      % free parameters set to random
          beh_is = struct();
-         beh_is.offer = rootfile.beh{is}.offer(trials);
-         beh_is.choice = rootfile.beh{is}.choice(trials);
+         beh_is.offer = rootfile.beh{is}.offer;
+         beh_is.choice = rootfile.beh{is}.choice;
          inputfun = @(q)fit.objfunc(beh_is,q,fit.doprior ,fit.dofit,prior);  
          [q,fval,ex,~,~,hessian] = fminunc(inputfun,q,fit.options); 
          if ex<0 ; tmp=tmp+1; fprintf('didn''t converge %i times exit status %i\r',tmp,ex); end         
@@ -109,20 +108,11 @@ for iiter = 1:fit.maxit
    subplot(2,1,1);
    plot(sum(NPL(:,1:iiter)),'b'); hold all;
    plot(NLL(1:iiter),'r'); 
-   if iiter==1, leg = legend({'NPL - Sum' ,'NLL - Sum'},'Autoupdate','off'); end          
+   if iiter==1, leg = legend({'NPL','NLL'},'Autoupdate','off'); end          
    title([rootfile.expname ' - ' strrep(modelID,'_',' ')]);    xlabel('EM iteration');
    setfp(gcf)
    drawnow; 
-
-   subplot(2,1,2);
-   MNLL(iiter) = mean(NPL(:,iiter)) - sum(NLPrior(:,iiter));  
-   plot(mean(NPL(:,1:iiter)),'g');hold all;
-   plot(MNLL(1:iiter),'y'); 
-   if iiter==1, leg = legend({'NPL - Mean', 'NLL - Mean'},'Autoupdate','off'); end          
-   title([rootfile.expname ' - ' strrep(modelID,'_',' ')]);    xlabel('EM iteration');
-   setfp(gcf)
-   drawnow; 
-
+   
    % execute break if desired
    if nextbreak ==1 
       break 
@@ -134,6 +124,9 @@ end
 if iiter == fit.maxit 
     fprintf('...maximum number of iterations reached');
 end
+
+
+
 
 %======================================================================================================
 %%% 3) Get values for best fitting model
@@ -207,8 +200,8 @@ modout.(modelID).fit.goodHessian = goodHessian;
 for is = 1:n_subj
    % For UG structure
    beh_is = struct();
-   beh_is.offer = rootfile.beh{is}.offer(trials);
-   beh_is.choice = rootfile.beh{is}.choice(trials);
+   beh_is.offer = rootfile.beh{is}.offer;
+   beh_is.choice = rootfile.beh{is}.choice;
    [nll_check,subfit]            = fit.objfunc(beh_is,m(:,is),fit.doprior,fit.dofit); 
    % group values
    modout.(modelID).qnames       = subfit.xnames;
@@ -244,11 +237,6 @@ figpath=['figs/'];
 if ~isdir(figpath), mkdir(figpath); end;
 figname=[figpath modelID '_correl.jpg' ];
 saveas(gcf,figname); close all;
-
-
-
-
-
 
 
 end

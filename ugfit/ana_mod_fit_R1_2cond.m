@@ -15,7 +15,7 @@ setFigDefaults;
 %%== 0) Load and organise data: ==========================================================================================
 % load data:
 %indir = 'C:/Users/blair/Documents/Research/Sinai-UG-EM-FIT/example_data/';
-load('DATA_Simulated-Gauss_f0_250Subj_30Trials_Dec14.mat');
+load('DATA_Simulated-Gauss_f0_250Subj_2cond_30Trials_Dec15.mat');
 % define data set(s) of interest:
 expids = {'simUG2'};
 % how to fit RL:
@@ -25,14 +25,13 @@ M.quickfit  = 0;   % Shawn tells me that quickfit is too liberal to be trusted, 
 M.omitBMS   = 0;                                                                                                     % omit bayesian model comparison if you don't have SPM instaslled
 M.modid     = { %'ms_UG0_f0f_adaptiveNorm', ...
      %'ms_UG1_etaf_f0f_adaptiveNorm',...
-      'ms_UG2_etaf_f0f_adaptiveNorm'}; %, ...
+      'ms_UG2_etaf_f0f_adaptiveNorm_2cond'}; %, ...
       %'ms_UG3_etaf_f0f_adaptiveNorm'}; 
               
                 % list of main models to fit
 
 %%
 %== I) RUN MODELS: ======================================================================================================
-trials = (1:30);
 for iexp = 1:numel(expids)
    if M.dofit == 0,  break; end
    cur_exp = expids{iexp};                                                   
@@ -45,7 +44,7 @@ for iexp = 1:numel(expids)
             close all;
             % If things are not working, run this line manually to set an
             % idea where the error in the code is
-            s.(cur_exp).em = EMfit_fmri_ms(s.(cur_exp),M.modid{im},M.quickfit,trials);
+            s.(cur_exp).em = EMfit_2cond_ms(s.(cur_exp),M.modid{im},M.quickfit);
             dotry=0;
          catch
             dotry=1; disp('caught');
@@ -61,33 +60,34 @@ for iexp = 1:numel(expids)
 end
 
 
-%save('FIT_MeanEM_Simulated-R1_f0_1285-Subj_30Trials_Dec1.mat','s')
+save('FIT_Simulated-250Subj_2cond_f0_adaptiveNorm_Dec15.mat','s')
 
 
 %%
 
-load("FIT_MeanEM_Simulated-R1_f0_1285-Subj_30Trials_Dec1.mat")
+%load("FIT_MeanEM_Simulated-R1_f0_1285-Subj_30Trials_Dec1.mat")
 
 gen = s.simUG2.params;
 
-rec = s.simUG2.em.ms_UG2_etaf_f0f_adaptiveNorm.q;
+rec = s.simUG2.em.ms_UG2_etaf_f0f_adaptiveNorm_2cond.q;
 
-nP = length(s.simUG0.ID);
+nP = length(s.simUG2.ID);
 
 
 for i = 1:nP
     alpha(i) = norm2alpha(rec(i,1));
     beta(i) = norm2beta(rec(i,2));
     eps(i) = norm2alpha(rec(i,3));
-    delta(i) = norm2delta(rec(i,4));
+    delta_IC(i) = norm2delta(rec(i,4));
+    delta_NC(i) = norm2delta(rec(i,5));
 end
 
 %%
 corrplot([gen(:,1) alpha'])
 corrplot([gen(:,2) beta'])
 corrplot([gen(:,4) eps'])
-corrplot([gen(:,5) delta'])
-
+corrplot([gen(:,5) delta_IC'])
+corrplot([gen(:,6) delta_NC'])
 
 
 

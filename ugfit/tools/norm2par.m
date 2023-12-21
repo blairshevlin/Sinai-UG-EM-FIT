@@ -41,7 +41,7 @@ elseif strcmp(modelID, 'ms_UG2_etaf_adaptiveNorm')
     qbounds = [0 1; 0 15; 0 20; 0 1; -2 2]';
 elseif strcmp(modelID, 'ms_UG2_etaf_f0f_adaptiveNorm')
     if size(qin,2)~=4, disp('ERROR'); keyboard; end
-    qout = [norm2alpha(qin(:,1)) norm2beta(qin(:,2)) norm2alpha(qin(:,3)) qin(:,4)];
+    qout = [norm2alpha(qin(:,1)) norm2beta(qin(:,2)) norm2alpha(qin(:,3)) norm2delta(qin(:,4))];
     qbounds = [0 1; 0 15; 0 1; -2 2]';
 elseif strcmp(modelID, 'ms_UG3_etaf_adaptiveNorm')
     if size(qin,2)~=5, disp('ERROR'); keyboard; end
@@ -83,7 +83,22 @@ elseif strcmp(modelID, 'ms_UG3_etaf_f0f_noNorm')
     if size(qin,2)~=3, disp('ERROR'); keyboard; end
     qout = [norm2alpha(qin(:,1)) norm2beta(qin(:,2)) norm2delta(qin(:,3))];
     qbounds = [0 1; 0 15; -2 2]';
-   
+elseif strcmp(modelID, 'ms_UG0_etaf_f0f_adaptiveNorm_2cond')
+    if size(qin,2)~=3, disp('ERROR'); keyboard; end
+    qout = [norm2alpha(qin(:,1)) norm2beta(qin(:,2)) norm2alpha(qin(:,3))];
+    qbounds = [0 1; 0 15; 0 1]';
+elseif strcmp(modelID, 'ms_UG1_etaf_f0f_adaptiveNorm_2cond')
+    if size(qin,2)~=5, disp('ERROR'); keyboard; end
+    qout = [norm2alpha(qin(:,1)) norm2beta(qin(:,2)) norm2alpha(qin(:,3))  norm2delta(qin(:,4))  norm2delta(qin(:,5))];
+    qbounds = [0 1; 0 15; 0 1; -2 2; -2 2]';
+elseif strcmp(modelID, 'ms_UG2_etaf_f0f_adaptiveNorm_2cond')
+    if size(qin,2)~=5, disp('ERROR'); keyboard; end
+    qout = [norm2alpha(qin(:,1)) norm2beta(qin(:,2)) norm2alpha(qin(:,3))  norm2delta(qin(:,4))  norm2delta(qin(:,5))];
+    qbounds = [0 1; 0 15; 0 1; -2 2; -2 2]';
+elseif strcmp(modelID, 'ms_UG3_etaf_f0f_adaptiveNorm_2cond')
+    if size(qin,2)~=5, disp('ERROR'); keyboard; end
+    qout = [norm2alpha(qin(:,1)) norm2beta(qin(:,2)) norm2alpha(qin(:,3))  norm2delta(qin(:,4))  norm2delta(qin(:,5))];
+    qbounds = [0 1; 0 15; 0 1; -2 2; -2 2]';
    
 end
 

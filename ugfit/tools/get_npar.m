@@ -25,6 +25,10 @@ elseif       strcmp(modelID,'ms_UG0_etaf_f0f_noNorm'),      npar = 2;
 elseif       strcmp(modelID,'ms_UG1_etaf_f0f_noNorm'),      npar = 3;
 elseif       strcmp(modelID,'ms_UG2_etaf_f0f_noNorm'),      npar = 3;
 elseif       strcmp(modelID,'ms_UG3_etaf_f0f_noNorm'),      npar = 3;
+elseif       strcmp(modelID,'ms_UG0_etaf_f0f_adaptiveNorm_2cond'),      npar = 3;  
+elseif       strcmp(modelID,'ms_UG1_etaf_f0f_adaptiveNorm_2cond'),      npar = 5;  
+elseif       strcmp(modelID,'ms_UG2_etaf_f0f_adaptiveNorm_2cond'),      npar = 5;  
+elseif       strcmp(modelID,'ms_UG3_etaf_f0f_adaptiveNorm_2cond'),      npar = 5;    
 
 end
 

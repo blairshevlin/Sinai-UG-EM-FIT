@@ -1,4 +1,4 @@
-function [ bicint ] = cal_BICint_ms(mroot, modelID,trials,Nsample)
+function [ bicint ] = cal_BICint_ms(mroot, modelID,Nsample)
 % calculates BICint. 
 % MK Wittmann, 2017
 % Adapted by BRK Shevlin
@@ -11,7 +11,7 @@ function [ bicint ] = cal_BICint_ms(mroot, modelID,trials,Nsample)
 
 
 % define settings
-if nargin <4, Nsample     = size(mroot.(modelID).sub,2) ;end%2000; end                                                        % nr of times drawn from population distribution
+if nargin <3, Nsample     = size(mroot.(modelID).sub,2) ;end%2000; end                                                        % nr of times drawn from population distribution
 
 % dont do prior, just get the NLL
 fit.dofit   = 0;                                                                             % can be zero, because no fitted parameters needed, just nll
@@ -41,8 +41,8 @@ for is = 1:numel(fit.beh)
    % for each subject, get NLL for input params from gaussian
    for k=1:Nsample
       beh_is = struct();
-      beh_is.offer = fit.beh{is}.offer(trials);
-      beh_is.choice = fit.beh{is}.choice(trials);
+      beh_is.offer = fit.beh{is}.offer;
+      beh_is.choice = fit.beh{is}.choice;
       subnll(k)  = fit.objfunc(beh_is,Gsamples(:,k),fit.doprior,fit.dofit); 
    end
    fprintf([ num2str(is) ',']);
