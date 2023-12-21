@@ -14,7 +14,7 @@ setFigDefaults;
 
 %%== 0) Load and organise data: ==========================================================================================
 % load data:
-load('Hackathon-Data_Separate-IC-NC_s150.mat');
+load('Hackathon-Data_Separate-IC-NC_s150_noFlat_noNorm.mat');
 % define data set(s) of interest:
 expids = {'simUG2_IC'};
 % how to fit RL:
@@ -24,7 +24,7 @@ M.quickfit  = 0;   % Shawn tells me that quickfit is too liberal to be trusted, 
 M.omitBMS   = 0;                                                                                                     % omit bayesian model comparison if you don't have SPM instaslled
 M.modid     = { %'ms_UG0_f0f_adaptiveNorm', ...
      %'ms_UG1_etaf_f0f_adaptiveNorm',...
-      'ms_UG2_etaf_f0f_adaptiveNorm'}; %, ...
+      'ms_UG2_etaf_f0f_noNorm'}; %, ...
       %'ms_UG3_etaf_f0f_adaptiveNorm'}; 
               
                 % list of main models to fit
@@ -43,7 +43,7 @@ for iexp = 1:numel(expids)
             close all;
             % If things are not working, run this line manually to set an
             % idea where the error in the code is
-            s.(cur_exp).em = EMfit_lme(s.(cur_exp),M.modid{im},M.quickfit);
+            s.(cur_exp).em = EMfit_ms(s.(cur_exp),M.modid{im},M.quickfit,[1:30]);
             dotry=0;
          catch
             dotry=1; disp('caught');

@@ -81,7 +81,13 @@ for i = 1:nP
 
     % Can ignore delta for these
     [offer_ic, choice_ic] = simulate_0step_ic(gen_params(i,1:4));
+    while sum(choice_ic) == 0 || sum(choice_ic) == length(choice_ic)
+        [offer_ic, choice_ic] = simulate_0step_ic(gen_params(i,1:4));
+    end
     [offer_nc, choice_nc] = simulate_0step_nc(gen_params(i,1:4));
+    while sum(choice_nc) == 0 || sum(choice_nc) == length(choice_nc)
+        [offer_nc, choice_nc] = simulate_0step_nc(gen_params(i,1:4));
+    end
 
     tmp_struct = struct();
 
@@ -113,7 +119,14 @@ sim_beh = {};
 for i = 1:nP
 
     [offer_ic, choice_ic] = simulate_1step_ic(gen_params(i,1:5));
+    while sum(choice_ic) == 0 || sum(choice_ic) == length(choice_ic)
+        [offer_ic, choice_ic] = simulate_1step_ic(gen_params(i,1:5));
+    end
+
     [offer_nc, choice_nc] = simulate_1step_nc(gen_params(i,[1:4,6]));
+    while sum(choice_nc) == 0 || sum(choice_nc) == length(choice_nc)
+        [offer_nc, choice_nc] = simulate_1step_nc(gen_params(i,1:4));
+    end
 
     tmp_struct = struct();
 
@@ -141,7 +154,14 @@ sim_beh = {};
 for i = 1:nP
 
     [offer_ic, choice_ic] = simulate_2step_ic(gen_params(i,1:5));
+    while sum(choice_ic) == 0 || sum(choice_ic) == length(choice_ic)
+        [offer_ic, choice_ic] = simulate_2step_ic(gen_params(i,1:5));
+    end
+
     [offer_nc, choice_nc] = simulate_2step_nc(gen_params(i,[1:4,6]));
+    while sum(choice_nc) == 0 || sum(choice_nc) == length(choice_nc)
+        [offer_nc, choice_nc] = simulate_2step_nc(gen_params(i,1:4));
+    end
 
     tmp_struct = struct();
 
@@ -169,7 +189,14 @@ sim_beh = {};
 for i = 1:nP
 
     [offer_ic, choice_ic] = simulate_3step_ic(gen_params(i,1:5));
+    while sum(choice_ic) == 0 || sum(choice_ic) == length(choice_ic)
+        [offer_ic, choice_ic] = simulate_3step_ic(gen_params(i,1:5));
+    end
+
     [offer_nc, choice_nc] = simulate_3step_nc(gen_params(i,[1:4,6]));
+    while sum(choice_nc) == 0 || sum(choice_nc) == length(choice_nc)
+        [offer_nc, choice_nc] = simulate_3step_nc(gen_params(i,1:4));
+    end
 
     tmp_struct = struct();
 
@@ -199,6 +226,6 @@ s.simUG1 = simUG1;
 s.simUG2 = simUG2;
 s.simUG3 = simUG3;
 
-save('Hackathon-Data_Combined-IC-NC_s150.mat', 's');
+save('Hackathon-Data_Combined-IC-NC_s150_noFlat.mat', 's');
 
 
