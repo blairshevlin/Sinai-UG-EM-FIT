@@ -11,7 +11,7 @@ global eta
 global n
 
 offer0 = 5;
-n = 30;             % number of trials
+n = 40;             % number of trials
 eta = 0.8;          % fixed parameter
 
 % Number of subejcts
@@ -78,44 +78,43 @@ for i = 1:nP
         gen_params(i,6) = temp_delta_NC;
 
         [offer_ic_0, choice_ic_0] = simulate_0step_ic(gen_params(i,1:4));
-        if sum(choice_ic_0) ~= 30 && sum(choice_ic_0) ~= 0
+        if sum(choice_ic_0) ~= 40 && sum(choice_ic_0) ~= 0
             good = good +1;
         end
-%         good = good +1;
         [offer_nc_0, choice_nc_0] = simulate_0step_nc(gen_params(i,1:4));
-        if sum(choice_nc_0) ~= 30 && sum(choice_nc_0) ~= 0
+        if sum(choice_nc_0) ~= 40 && sum(choice_nc_0) ~= 0
             good = good +1;
         end
         
 
         [offer_ic_1, choice_ic_1] = simulate_1step_ic(gen_params(i,1:5));
-        if sum(choice_ic_1) ~= 30 && sum(choice_ic_1) ~= 0
+        if sum(choice_ic_1) ~= 40 && sum(choice_ic_1) ~= 0
            good = good +1;
         end
         
 
         [offer_nc_1, choice_nc_1] = simulate_1step_nc(gen_params(i,[1:4,6]));
-        if sum(choice_nc_1) ~= 30 && sum(choice_nc_1) ~= 0
+        if sum(choice_nc_1) ~= 40 && sum(choice_nc_1) ~= 0
             good = good +1;
         end
 
         [offer_ic_2, choice_ic_2] = simulate_2step_ic(gen_params(i,1:5));
-        if sum(choice_ic_2) ~= 30 && sum(choice_ic_2) ~= 0
+        if sum(choice_ic_2) ~= 40 && sum(choice_ic_2) ~= 0
             good = good +1;
         end
 
         [offer_nc_2, choice_nc_2] = simulate_2step_nc(gen_params(i,[1:4,6]));
-        if sum(choice_nc_2) ~= 30 && sum(choice_nc_2) ~= 0
+        if sum(choice_nc_2) ~= 40 && sum(choice_nc_2) ~= 0
             good = good +1;
         end
 
         [offer_ic_3, choice_ic_3] = simulate_3step_ic(gen_params(i,1:5));
-        if sum(choice_ic_3) ~= 30 && sum(choice_ic_3) ~= 0
+        if sum(choice_ic_3) ~= 40 && sum(choice_ic_3) ~= 0
             good = good +1;
         end
 
         [offer_nc_3, choice_nc_3] = simulate_3step_nc(gen_params(i,[1:4,6]));
-        if sum(choice_nc_3) ~= 30 && sum(choice_nc_3) ~= 0
+        if sum(choice_nc_3) ~= 40 && sum(choice_nc_3) ~= 0
             good = good +1;
         end
 
@@ -211,7 +210,7 @@ for i = 1:150
     num_same_resp_ic = sum(s.simUG2.beh{1, i}.choice{1, 1}(1) == s.simUG2.beh{1, i}.choice{1, 1}  );
     num_same_resp_nc = sum(s.simUG2.beh{1, i}.choice{1, 2}(1) == s.simUG2.beh{1, i}.choice{1, 2}  );
 
-    if num_same_resp_ic == 30 || num_same_resp_nc == 30
+    if num_same_resp_ic == 40 || num_same_resp_nc == 40
         disp(i)
         params = [params; i, s.simUG2.params(i,:)];
         count = count + 1;
@@ -219,6 +218,6 @@ for i = 1:150
 end
 
 %%
-save('Hackathon-Data_Combined-IC-NC_s150_noFlat.mat', 's');
+save('Hackathon-Data_Combined-IC-NC_s150_noFlat_t40.mat', 's');
 
 

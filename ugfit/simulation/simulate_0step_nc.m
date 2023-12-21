@@ -3,7 +3,7 @@ function [offer, resp] = simulate_0step_nc(free)
     
     global n    
     
-    offer = offer_uncontrollable;
+    offer = offer_uncontrollable(n);
     
     temp = free(1);
     envy = free(2);    

@@ -1,6 +1,6 @@
-function [modout]= EMfit_2cond_ms(rootfile,modelID,quickfit,ntrials)
+function [modout]= EMfit_2cond_lme(rootfile,modelID,quickfit,ntrial)
 % 2017; does Expectation-maximation fitting. Originally written by Elsa Fouragnan, modified by MKW.
-% Adapted by BRK Shevlin April 2023
+% Adapted by BRK Shevlin and S Rhoads Dec 2023
 % INPUT:       - rootfile: file with all behavioural information necessary for fitting + outputroot
 %              - modelID: ID of model to fit
 %              - quickfit: wether to lower the convergence criterion for model fitting (makes fitting quicker)
@@ -17,20 +17,21 @@ fprintf([rootfile.expname ': Fitting ' modelID ' using EM.']);
 % assign input variables
 modout      = rootfile.em;
 n_subj      = length(rootfile.ID);
-fit.ntrials = [];%nan(length(rootfile.beh{1}.offer),1);
+fit.ntrials = [];
 for is = 1:n_subj
-   fit.ntrials(is) = ntrials;%sum(~isnan(rootfile.beh{is}.offer(trials))); 
+   fit.ntrials(is) = ntrial; 
 end
 
 
 % define model and fitting params:
 if quickfit==1, fit.convCrit= 0.1; else fit.convCrit= 1e-3; end
-fit.maxit   = 800; 
-fit.maxEvals= 400;
+fit.maxit   = 1000; 
+fit.maxEvals= 500;
 fit.npar    = get_npar(modelID);   
 fit.objfunc = str2func(['mod_' modelID]);                                     % the function used from here downwards
 fit.doprior = 1;
 fit.dofit   = 0;                                                              % getting the fitted schedule
+% Note: reduced TolX to .001 (Original is .001)
 fit.options = optimoptions(@fminunc,'Display','off','TolX',.0001,'Algorithm','quasi-newton'); 
 if isfield(fit,'maxEvals'),  fit.options = optimoptions(@fminunc,'Display','off','TolX',.0001,'MaxFunEvals', fit.maxEvals,'Algorithm','quasi-newton'); end
 
@@ -44,11 +45,10 @@ NPL         = [];                                                             % 
 NPL_old     = -Inf;
 NLL         = [] ;                                                            % NLL estimate per iteration
 NLPrior     = [];                                                             % negative LogPrior estimate per iteration
-
+lme         = [];
 %======================================================================================================
 % 2) EM FITTING
 %======================================================================================================
-%figure;
 for iiter = 1:fit.maxit                         
    
    m=[];                                                                      % individual-level parameter mean estimate
@@ -93,27 +93,39 @@ for iiter = 1:fit.maxit
        flagcov=0; % don't proceed if bad fit for all subjects
        disp('-[badfit]-');
    end
+    
+   
+   if iiter > 2
+     L = [];
+     for is = 1:n_subj
+        try
+            hHere = logdet(h(:,:,is) ,'chol');
+            L(is)= -NPL(is,iiter-1) - 1/2*log(det(h(:,:,is))) + (fit.npar/2)*log(2*pi); % La Place approximation computed log model evidence - log posterior prob  
+            goodHessian(is) = 1;
+        catch
+           % warning('Hessian is not positive definite');
+            try
+                hHere = logdet(h(:,:,is));
+                L(is) = nan;
+                goodHessian(is) = 0;
+            catch
+                warning('could not calculate');
+                goodHessian(is) = -1;
+                L(is) = nan;
+            end
+        end
+    end
+    L(isnan(L)) = nanmean(L)';
+    lme(iiter) = sum(L) - fit.npar*log(n_subj);
    
    % check whether fit has converged
-   fprintf(['.']);
-   if abs(sum(NPL(:,iiter))-NPL_old) < fit.convCrit  && flagcov==1            % if  MAP estimate does not improve and covariances were properly computed
-      fprintf('...converged!!!!! \n');  nextbreak=1;                          % stops at end of this loop iteration                                                        
+    fprintf([', ',num2str(lme(iiter)),' (',num2str(iiter),')']);
+    if abs(lme(iiter)-lme(iiter-1)) < fit.convCrit && flagcov==1            % if  MAP estimate does not improve and covariances were properly computed
+        fprintf(' -- converged!!!!! \n');  
+        nextbreak=1;                          % stops at end of this loop iteration                                                        
+    end
    end
-   NPL_old = sum(NPL(:,iiter));
-   
-   
-   % ============== Plot progress (for visualisation only ===================
-   
-   NLL(iiter) = sum(NPL(:,iiter)) - sum(NLPrior(:,iiter));                    % compute NLL manually, just for visualisation
-   fprintf(num2str(sum(NPL(:,iiter))) + " (" + num2str(iiter) + ")")
-   % subplot(2,1,1);
-   %plot(sum(NPL(:,1:iiter)),'b'); hold all;
-   %plot(NLL(1:iiter),'r'); 
-   %if iiter==1, leg = legend({'NPL','NLL'},'Autoupdate','off'); end          
-   %title([rootfile.expname ' - ' strrep(modelID,'_',' ')]);    xlabel('EM iteration');
-   %setfp(gcf)
-   %drawnow; 
-   
+
    % execute break if desired
    if nextbreak ==1 
       break 
@@ -125,9 +137,6 @@ end
 if iiter == fit.maxit 
     fprintf('...maximum number of iterations reached');
 end
-
-
-
 
 %======================================================================================================
 %%% 3) Get values for best fitting model
@@ -155,7 +164,8 @@ modout.(modelID).fit.npl         = NPL(:,iiter);                                
 modout.(modelID).fit.NLPrior     = NLPrior(:,iiter);
 modout.(modelID).fit.nll         = NPL(:,iiter) - NLPrior(:,iiter); 
 [modout.(modelID).fit.aic,modout.(modelID).fit.bic] = aicbic(-modout.(modelID).fit.nll,fit.npar,fit.ntrials); 
-modout.(modelID).fit.lme         = [];
+modout.(modelID).fit.lme         = lme;
+modout.(modelID).fit.goodHessian = goodHessian; 
 modout.(modelID).fit.convCrit    = fit.convCrit;
 modout.(modelID).ntrials         = fit.ntrials;
 
@@ -168,41 +178,11 @@ modout.(modelID).ntrials         = fit.ntrials;
 fit.dofit   = 1;
 fit.doprior = 0;
 
-% ==================== %
-% Jan 2020: Pat & Miriam from mfit_optimize_hierarchical.m from Sam Gershman
-
-for is = 1:n_subj
-       
-   try
-       hHere = logdet(h(:,:,is) ,'chol');
-       L(is)= -NPL(is,iiter) - 1/2*log(det(h(:,:,is))) + (fit.npar/2)*log(2*pi); % La Place approximation computed log model evidence - log posterior prob  
-       %L(s) = -NPL(is,iiter) + 0.5*((fit.npar/2)*log(2*pi) - h);
-       goodHessian(is) = 1;
-   catch
-       warning('Hessian is not positive definite');
-       try
-           hHere = logdet(h(:,:,is));
-           L(is) = nan;
-%            L(is) = -NPL(is,iiter) - 1/2*log(det(h(:,:,is))) + (fit.npar/2)*log(2*pi);
-           goodHessian(is) = 0;
-       catch
-           warning('could not calculate');
-           goodHessian(is) = -1;
-           L(is) = nan;
-       end
-   end
-end
-
-L(isnan(L)) = nanmean(L)';
-modout.(modelID).fit.lme = L;
-modout.(modelID).fit.goodHessian = goodHessian; 
-
-
 for is = 1:n_subj
    % For UG structure
    beh_is = struct();
-   beh_is.offer = rootfile.beh{is}.offer;
-   beh_is.choice = rootfile.beh{is}.choice;
+   beh_is.offer = rootfile.beh{is}.offer(trials);
+   beh_is.choice = rootfile.beh{is}.choice(trials);
    [nll_check,subfit]            = fit.objfunc(beh_is,m(:,is),fit.doprior,fit.dofit); 
    % group values
    modout.(modelID).qnames       = subfit.xnames;
@@ -238,6 +218,11 @@ figpath=['figs/'];
 if ~isdir(figpath), mkdir(figpath); end;
 figname=[figpath modelID '_correl.jpg' ];
 saveas(gcf,figname); close all;
+
+
+
+
+
 
 
 end

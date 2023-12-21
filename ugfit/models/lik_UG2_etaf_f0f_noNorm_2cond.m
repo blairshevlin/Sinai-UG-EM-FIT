@@ -58,9 +58,12 @@ function [fval, norm, V, choice_prob_arry] = lik_UG2_etaf_f0f_noNorm_2cond(offer
             V(i) = CV(i) + (aFV(i) - rFV(i));       
         end 
 
+        ZV = (V - mean(V))/std(V);
+
         % calculate probability of accepting offer:                                                                                             
-        prob     = 1 ./ ( 1 + exp(-beta.*V));  
-    
+        %prob     = 1 ./ ( 1 + exp(-beta.*V));  
+        prob     = 1 ./ ( 1 + exp(-beta.*ZV));
+        
         % find when offer was actually choosen:
         accept = find(resp == 1);
         reject = find(resp == 0);

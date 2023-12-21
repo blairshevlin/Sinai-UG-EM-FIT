@@ -24,7 +24,7 @@ M.quickfit  = 0;   % Shawn tells me that quickfit is too liberal to be trusted, 
 M.omitBMS   = 0;                                                                                                     % omit bayesian model comparison if you don't have SPM instaslled
 M.modid     = { %'ms_UG0_f0f_adaptiveNorm', ...
      %'ms_UG1_etaf_f0f_adaptiveNorm',...
-      'ms_UG2_etaf_f0f_noNorm'}; %, ...
+      'ms_UG2_etaf_f0f_adaptiveNorm'}; %, ...
       %'ms_UG3_etaf_f0f_adaptiveNorm'}; 
               
                 % list of main models to fit
@@ -67,11 +67,11 @@ save('FIT_Hackathon-Data_Separate-IC-NC_s150.mat','s')
 
 %load("FIT_MeanEM_Simulated-R1_f0_1285-Subj_30Trials_Dec1.mat")
 
-gen = s.simUG2.params;
+gen = s.simUG2_IC.params;
 
-rec = s.simUG2.em.ms_UG2_etaf_f0f_adaptiveNorm_2cond.q;
+rec = s.simUG2_IC.em.ms_UG2_etaf_f0f_adaptiveNorm.q;
 
-nP = length(s.simUG2.ID);
+nP = length(s.simUG2_IC.ID);
 
 
 for i = 1:nP
@@ -79,7 +79,6 @@ for i = 1:nP
     beta(i) = norm2beta(rec(i,2));
     eps(i) = norm2alpha(rec(i,3));
     delta_IC(i) = norm2delta(rec(i,4));
-    delta_NC(i) = norm2delta(rec(i,5));
 end
 
 %%
@@ -87,7 +86,6 @@ corrplot([gen(:,1) alpha'])
 corrplot([gen(:,2) beta'])
 corrplot([gen(:,4) eps'])
 corrplot([gen(:,5) delta_IC'])
-corrplot([gen(:,6) delta_NC'])
 
 
 

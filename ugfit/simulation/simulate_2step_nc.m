@@ -4,7 +4,7 @@ function [offer, resp] = simulate_2step_nc(free)
     global n    
     global eta
     
-    offer = offer_uncontrollable;
+    offer = offer_uncontrollable(n);
     
     mn = 1;        
 
